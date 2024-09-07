@@ -10,5 +10,7 @@
     "outDir": "./out",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "out"]
 }

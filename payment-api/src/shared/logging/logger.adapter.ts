@@ -1,13 +1,24 @@
-import pino from "pino";
+import pino from 'pino';
+import { injectable } from 'tsyringe';
+import { Loggable } from './loggable.interface';
 
-const Logger = pino({
-    level: 'info',
-    transport: {
-        target: 'pino-pretty',
-        options: {
-            colorize: true
+@injectable()
+export class Logger implements Loggable {
+    private logger = pino({
+        level: 'info',
+        transport: {
+            target: 'pino-pretty',
+            options: {
+                colorize: true
+            }
         }
-    }
-});
+    });
 
-export { Logger };
+    info(message: string): void {
+        this.logger.info(message);
+    }
+
+    error(message: string): void {
+        this.logger.error(message);
+    }
+}

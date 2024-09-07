@@ -1,8 +1,12 @@
-import { JestConfigWithTsJest } from "ts-jest";
+import { JestConfigWithTsJest } from 'ts-jest';
 
 const config: JestConfigWithTsJest = {
     preset: 'ts-jest',
-    testEnvironment: 'node'
+    testEnvironment: 'node',
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        'out/'
+    ]
 };
 
 export default config;

@@ -1,7 +1,9 @@
+import 'reflect-metadata';
 import { Executable } from '../executable.interface';
 import { randomUUID } from 'crypto';
-import { Logger } from '../../shared/logging/logger.adapter';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
+import { Loggable } from '../../shared/logging/loggable.interface';
+import { Token } from "../../dependency-injection.config";
 
 export const PaymentStatus = {
     PENDING: 'PENDING',
@@ -19,15 +21,19 @@ export interface PaymentProcessOutput {
 
 @injectable()
 export class PaymentProcessUseCase implements Executable<PaymentProcessInput, PaymentProcessOutput> {
+    constructor(
+        @inject(Token.LOGGABLE) private readonly logger: Loggable
+    ) {}
+
     async execute(input: PaymentProcessInput): Promise<PaymentProcessOutput> {
-        Logger.info('Starting payment process.');
+        this.logger.info('Starting payment process.');
 
         const result: PaymentProcessOutput = {
             id: randomUUID(),
             status: PaymentStatus.SUCCESS
         };
 
-        Logger.info(`Payment of ${ input.amount } processed successfully.`);
+        this.logger.info(`Payment of ${ input.amount } processed successfully.`);
 
         return result;
     }
