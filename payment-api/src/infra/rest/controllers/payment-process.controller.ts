@@ -8,17 +8,15 @@ export class PaymentProcessController {
     }
 
     async handle(request: Request, response: Response) {
-        const { order_id: orderId, payment_value: paymentValue } = request.body;
+        const { amount } = request.body;
 
-        const result = await this.useCase.execute({
-            orderId: orderId,
-            paymentValue: paymentValue
-        });
+        const result = await this.useCase.execute({ amount });
 
         return response.json({
             status: 200,
             content: {
-                transaction_id: result.transactionId
+                id: result.id,
+                status: result.status
             }
         });
     }

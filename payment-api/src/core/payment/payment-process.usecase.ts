@@ -3,15 +3,18 @@ import { randomUUID } from 'crypto';
 import { Logger } from '../../shared/logging/logger.adapter';
 import { injectable } from 'tsyringe';
 
+export const PaymentStatus = {
+    PENDING: 'PENDING',
+    SUCCESS: 'SUCCESS'
+} as const;
+
 export interface PaymentProcessInput {
-    orderId: string;
-    paymentValue: number;
+    amount: number;
 }
 
 export interface PaymentProcessOutput {
-    transactionId: string;
-    orderId: string;
-    paymentValue: number;
+    id: string;
+    status: string;
 }
 
 @injectable()
@@ -19,15 +22,12 @@ export class PaymentProcessUseCase implements Executable<PaymentProcessInput, Pa
     async execute(input: PaymentProcessInput): Promise<PaymentProcessOutput> {
         Logger.info('Starting payment process.');
 
-        const transactionId = randomUUID();
-
-        const result = {
-            transactionId: transactionId,
-            orderId: input.orderId,
-            paymentValue: input.paymentValue
+        const result: PaymentProcessOutput = {
+            id: randomUUID(),
+            status: PaymentStatus.SUCCESS
         };
 
-        Logger.info(`Payment processed successfully. ${ JSON.stringify(result) }`);
+        Logger.info(`Payment of ${ input.amount } processed successfully.`);
 
         return result;
     }
