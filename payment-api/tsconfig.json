@@ -7,6 +7,8 @@
     "strict": true,
     "skipLibCheck": true,
     "rootDir": "./src",
-    "outDir": "./out"
+    "outDir": "./out",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

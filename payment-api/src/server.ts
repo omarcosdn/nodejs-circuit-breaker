@@ -1,7 +1,8 @@
-import express from "express";
-import { PaymentApiRoutes } from "./infra/rest/payment-api.routes";
-import { Env } from "./server.config";
-import { Logger } from "./shared/logging/logger.adapter";
+import 'reflect-metadata';
+import express from 'express';
+import { PaymentApiRoutes } from './infra/rest/payment-api.routes';
+import { Env } from './server.config';
+import { Logger } from './shared/logging/logger.adapter';
 
 const PaymentApi = express();
 PaymentApi.use(express.json());
