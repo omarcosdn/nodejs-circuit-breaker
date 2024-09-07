@@ -1,0 +1,9 @@
+/order-api/node_modules/
+/order-api/coverage/
+/order-api/.env
+/order-api/out
+
+/payment-api/node_modules/
+/payment-api/coverage/
+/payment-api/.env
+/payment-api/out
