@@ -18,7 +18,7 @@ export class Logger implements Loggable {
     this.logger.info(message);
   }
 
-  error(message: string): void {
-    this.logger.error(message);
+  error(message: string, err?: unknown): void {
+    this.logger.error(message, err);
   }
 }
