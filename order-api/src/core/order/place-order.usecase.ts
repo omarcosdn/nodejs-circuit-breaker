@@ -3,7 +3,7 @@ import {randomUUID} from 'crypto';
 import {Token} from '@src/dependency-injection.config';
 import {Loggable} from '@shared/logging/loggable.interface';
 import {Executable} from '@core/executable.interface';
-import {PaymentApiGateway, PaymentInput} from '@core/payment/payment-api.gateway';
+import {ProcessPaymentGateway} from '@core/payment/process-payment.gateway';
 
 export const OrderStatus = {
   PENDING: 'PENDING',
@@ -28,33 +28,33 @@ export interface Payment {
 }
 
 @injectable()
-export class PlaceOrderUseCase implements Executable<PlaceOrderInput, PlaceOrderOutput> {
+export class PlaceOrderUseCase implements Executable<PlaceOrderInput, PlaceOrderOutput | undefined> {
   constructor(
     @inject(Token.LOGGABLE) private readonly logger: Loggable,
-    @inject(Token.PAYMENT_API_GATEWAY) private readonly paymentGateway: PaymentApiGateway
+    @inject(Token.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway
   ) {}
 
-  async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
+  async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput | undefined> {
     this.logger.info('Starting order process.');
 
-    const paymentInput: PaymentInput = {
-      amount: input.amount,
-    };
-    const paymentOutput = await this.paymentGateway.execute(paymentInput);
-
-    const result: PlaceOrderOutput = {
-      id: randomUUID(),
-      status: OrderStatus.PENDING,
-      amount: input.amount,
-      payment: {
-        id: paymentOutput.id,
-        status: paymentOutput.status,
+    const paymentOutput = await this.paymentGateway.execute({amount: input.amount});
+    if (paymentOutput !== undefined) {
+      const result: PlaceOrderOutput = {
+        id: randomUUID(),
+        status: OrderStatus.PENDING,
         amount: input.amount,
-      },
-    };
+        payment: {
+          id: paymentOutput.id,
+          status: paymentOutput.status,
+          amount: input.amount,
+        },
+      };
 
-    this.logger.info('Order processed successfully.');
+      this.logger.info('Order processed successfully.');
 
-    return result;
+      return result;
+    }
+
+    this.logger.info('Finishing order process with error.');
   }
 }
