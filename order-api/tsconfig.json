@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "./src",
+    "outDir": "./out",
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "@src/*": ["./src/*", "./out/*"],
+      "@core/*": ["./src/core/*", "./out/core/*"],
+      "@infra/*": ["./src/infra/*", "./out/infra/*"],
+      "@shared/*": ["./src/shared/*", "./out/shared/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "out"]
+}
