@@ -1,3 +1,5 @@
+.idea
+
 /order-api/node_modules/
 /order-api/coverage/
 /order-api/.env
