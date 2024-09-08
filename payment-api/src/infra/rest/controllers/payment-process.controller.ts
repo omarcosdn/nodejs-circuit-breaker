@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PaymentProcessUseCase } from '../../../core/payment/payment-process.usecase';
+import { PaymentProcessUseCase } from '@core/payment/payment-process.usecase';
 import { injectable } from 'tsyringe';
 
 @injectable()

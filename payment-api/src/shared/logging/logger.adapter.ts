@@ -1,6 +1,6 @@
 import pino from 'pino';
 import { injectable } from 'tsyringe';
-import { Loggable } from './loggable.interface';
+import { Loggable } from '@shared/logging/loggable.interface';
 
 @injectable()
 export class Logger implements Loggable {

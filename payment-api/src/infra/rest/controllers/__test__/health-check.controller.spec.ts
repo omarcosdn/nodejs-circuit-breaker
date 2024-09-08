@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { HealthCheckController } from "../health-check.controller";
+import { Request, Response } from 'express';
+import { HealthCheckController } from '@infra/rest/controllers/health-check.controller';
 
 describe('HealthCheckController', () => {
     it('should return a 200 OK status', async () => {

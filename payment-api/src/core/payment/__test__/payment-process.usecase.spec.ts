@@ -3,8 +3,8 @@ import {
     PaymentProcessOutput,
     PaymentProcessUseCase,
     PaymentStatus
-} from '../payment-process.usecase';
-import { Loggable } from '../../../shared/logging/loggable.interface';
+} from '@core/payment/payment-process.usecase';
+import { Loggable } from '@shared/logging/loggable.interface';
 import { randomUUID } from 'crypto';
 
 jest.mock('crypto', () => ({

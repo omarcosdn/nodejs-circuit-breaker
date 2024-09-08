@@ -1,6 +1,6 @@
 import express from 'express';
-import { HealthCheckController } from './controllers/health-check.controller';
-import { PaymentProcessController } from './controllers/payment-process.controller';
+import { HealthCheckController } from '@infra/rest/controllers/health-check.controller';
+import { PaymentProcessController } from '@infra/rest/controllers/payment-process.controller';
 import { container } from 'tsyringe';
 
 const PaymentApiRoutes = express.Router();

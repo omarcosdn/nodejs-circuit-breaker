@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Executable } from '../executable.interface';
+import { Executable } from '@core/executable.interface';
 import { randomUUID } from 'crypto';
 import { inject, injectable } from 'tsyringe';
-import { Loggable } from '../../shared/logging/loggable.interface';
-import { Token } from "../../dependency-injection.config";
+import { Loggable } from '@shared/logging/loggable.interface';
+import { Token } from '@src/dependency-injection.config';
 
 export const PaymentStatus = {
     PENDING: 'PENDING',

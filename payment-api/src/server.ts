@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import express from 'express';
-import { PaymentApiRoutes } from './infra/rest/payment-api.routes';
-import { Env } from './server.config';
+import { PaymentApiRoutes } from '@infra/rest/payment-api.routes';
 import { container } from 'tsyringe';
-import { Loggable } from './shared/logging/loggable.interface';
-import { Token } from './dependency-injection.config';
+import { Loggable } from '@shared/logging/loggable.interface';
+import { Token } from '@src/dependency-injection.config';
+import { Env } from '@src/server.config';
 
 const PaymentApi = express();
 PaymentApi.use(express.json());

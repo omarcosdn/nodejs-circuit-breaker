@@ -1,9 +1,9 @@
 import { container } from 'tsyringe';
-import { HealthCheckController } from './infra/rest/controllers/health-check.controller';
-import { PaymentProcessUseCase } from './core/payment/payment-process.usecase';
-import { PaymentProcessController } from './infra/rest/controllers/payment-process.controller';
-import { Loggable } from './shared/logging/loggable.interface';
-import { Logger } from './shared/logging/logger.adapter';
+import { HealthCheckController } from '@infra/rest/controllers/health-check.controller';
+import { PaymentProcessUseCase } from '@core/payment/payment-process.usecase';
+import { PaymentProcessController } from '@infra/rest/controllers/payment-process.controller';
+import { Loggable } from '@shared/logging/loggable.interface';
+import { Logger } from '@shared/logging/logger.adapter';
 
 export const Token = {
     LOGGABLE: 'Logger'
