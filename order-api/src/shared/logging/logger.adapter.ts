@@ -1,5 +1,5 @@
-import pino from 'pino';
 import {injectable} from 'tsyringe';
+import pino from 'pino';
 import {Loggable} from '@shared/logging/loggable.interface';
 
 @injectable()

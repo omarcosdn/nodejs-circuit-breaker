@@ -1,9 +1,9 @@
 import {inject, injectable} from 'tsyringe';
 import {randomUUID} from 'crypto';
-import {Token} from '@src/dependency-injection.config';
-import {Loggable} from '@shared/logging/loggable.interface';
-import {Executable} from '@core/executable.interface';
-import {ProcessPaymentGateway} from '@core/payment/process-payment.gateway';
+import {ProcessPaymentGateway} from '@core/gateways/process-payment.gateway';
+import {InjectableToken} from '@src/dependency-injection.types';
+import {Logger} from '@shared/logging/logger.adapter';
+import {ExecutableUseCase} from '@core/executable-usecase.interface';
 
 export const OrderStatus = {
   PENDING: 'PENDING',
@@ -27,11 +27,13 @@ export interface Payment {
   amount: number;
 }
 
+export interface PlaceOrderUseCase extends ExecutableUseCase<PlaceOrderInput, PlaceOrderOutput | undefined> {}
+
 @injectable()
-export class PlaceOrderUseCase implements Executable<PlaceOrderInput, PlaceOrderOutput | undefined> {
+export class DefaultPlaceOrderUseCase implements PlaceOrderUseCase {
   constructor(
-    @inject(Token.LOGGABLE) private readonly logger: Loggable,
-    @inject(Token.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway
+    @inject(InjectableToken.LOGGABLE) private readonly logger: Logger,
+    @inject(InjectableToken.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway
   ) {}
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput | undefined> {

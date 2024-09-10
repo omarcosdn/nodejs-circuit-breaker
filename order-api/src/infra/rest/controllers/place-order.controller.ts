@@ -1,16 +1,19 @@
-import {Request, Response} from 'express';
-
 import {inject, injectable} from 'tsyringe';
-import {PlaceOrderUseCase} from '@core/order/place-order.usecase';
-import {Token} from '@src/dependency-injection.config';
-import {Loggable} from '@shared/logging/loggable.interface';
+import {Request, Response} from 'express';
+import {PlaceOrderUseCase} from '@core/usecases/place-order.usecase';
 import {BusinessError} from '@shared/exceptions/business.error';
+import {InjectableToken} from '@src/dependency-injection.types';
+import {Logger} from '@shared/logging/logger.adapter';
+
+export interface PlaceOrderController {
+  handle(request: Request, response: Response): Promise<any>;
+}
 
 @injectable()
-export class PlaceOrderController {
+export class DefaultPlaceOrderController implements PlaceOrderController {
   constructor(
-    private readonly useCase: PlaceOrderUseCase,
-    @inject(Token.LOGGABLE) private readonly logger: Loggable
+    @inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: PlaceOrderUseCase,
+    @inject(InjectableToken.LOGGABLE) private readonly logger: Logger
   ) {}
 
   async handle(request: Request, response: Response) {
@@ -21,16 +24,7 @@ export class PlaceOrderController {
       if (result) {
         return response.json({
           status: 200,
-          content: {
-            id: result.id,
-            status: result.status,
-            amount: result.amount,
-            payment: {
-              id: result.payment.id,
-              status: result.payment.status,
-              amount: result.payment.amount,
-            },
-          },
+          content: result,
         });
       }
     } catch (err: unknown) {

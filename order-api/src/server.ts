@@ -1,19 +1,37 @@
 import 'reflect-metadata';
-import express from 'express';
-import {container} from 'tsyringe';
+import 'express-async-errors';
+import '@src/dependency-injection.config';
+import express, {NextFunction, Request, Response} from 'express';
 import {OrderApiRoutes} from '@infra/rest/order-api.routes';
+import {Environment} from '@src/server-environment.config';
+import {BusinessError} from '@shared/exceptions/business.error';
+import {container} from 'tsyringe';
 import {Loggable} from '@shared/logging/loggable.interface';
-import {Token} from '@src/dependency-injection.config';
-import {Env} from '@src/server.config';
+import {InjectableToken} from '@src/dependency-injection.types';
 
 const OrderApi = express();
 OrderApi.use(express.json());
 OrderApi.use(express.urlencoded({extended: true}));
 OrderApi.use('/order-api', OrderApiRoutes);
 
-const logger = container.resolve<Loggable>(Token.LOGGABLE);
+OrderApi.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof BusinessError) {
+    const status = err.getStatusCode();
+    return res.status(status).json({
+      status: status,
+      message: err.message,
+    });
+  }
 
-const PORT = Env.SERVER_PORT;
+  return res.status(500).json({
+    status: 500,
+    message: 'Internal Server Error',
+  });
+});
+
+const logger = container.resolve<Loggable>(InjectableToken.LOGGABLE);
+
+const PORT = Environment.SERVER_PORT;
 OrderApi.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });

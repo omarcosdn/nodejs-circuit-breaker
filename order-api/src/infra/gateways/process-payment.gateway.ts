@@ -3,7 +3,7 @@ import {
   ProcessPaymentGateway,
   ProcessPaymentRequest,
   ProcessPaymentResponse,
-} from '@core/payment/process-payment.gateway';
+} from '@core/gateways/process-payment.gateway';
 import {BusinessError} from '@shared/exceptions/business.error';
 import {injectable} from 'tsyringe';
 import {getPaymentApiInstance} from '@infra/axios-instance.config';
@@ -22,7 +22,7 @@ interface PaymentApiResponse {
 }
 
 @injectable()
-export class DefaultPaymentProcessorApiGateway implements ProcessPaymentGateway {
+export class DefaultProcessPaymentGateway implements ProcessPaymentGateway {
   private readonly breaker: CircuitBreaker<any, {data: PaymentApiResponse}>;
 
   constructor() {
@@ -39,9 +39,6 @@ export class DefaultPaymentProcessorApiGateway implements ProcessPaymentGateway 
 
       return this.handleResponse(data);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        throw new BusinessError('Error processing payment', err);
-      }
       throw new BusinessError('An unknown error occurred during payment processing');
     }
   }
