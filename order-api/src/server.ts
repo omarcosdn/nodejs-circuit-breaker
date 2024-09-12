@@ -5,14 +5,14 @@ import express, {NextFunction, Request, Response} from 'express';
 import {OrderApiRoutes} from '@infra/rest/order-api.routes';
 import {Environment} from '@src/server-environment.config';
 import {BusinessError} from '@shared/exceptions/business.error';
-import {container} from 'tsyringe';
-import {Loggable} from '@shared/logging/loggable.interface';
-import {InjectableToken} from '@src/dependency-injection.types';
+import {Logger} from '@shared/logging/logger.adapter';
 
 const OrderApi = express();
 OrderApi.use(express.json());
 OrderApi.use(express.urlencoded({extended: true}));
 OrderApi.use('/order-api', OrderApiRoutes);
+
+const logger = Logger.getInstance();
 
 OrderApi.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof BusinessError) {
@@ -28,8 +28,6 @@ OrderApi.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     message: 'Internal Server Error',
   });
 });
-
-const logger = container.resolve<Loggable>(InjectableToken.LOGGABLE);
 
 const PORT = Environment.SERVER_PORT;
 OrderApi.listen(PORT, () => {

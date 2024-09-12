@@ -7,7 +7,7 @@ import {
 import {BusinessError} from '@shared/exceptions/business.error';
 import {injectable} from 'tsyringe';
 import {getPaymentApiInstance} from '@infra/axios-instance.config';
-import {createCircuitBreaker} from '@infra/circuit-breaker.config';
+import {defaultCircuitBreaker} from '@infra/circuit-breaker.config';
 
 interface PaymentApiRequest {
   amount: number;
@@ -30,7 +30,7 @@ export class DefaultProcessPaymentGateway implements ProcessPaymentGateway {
       return getPaymentApiInstance().post<PaymentApiResponse>('/payment-process', data);
     };
 
-    this.breaker = createCircuitBreaker(requester);
+    this.breaker = defaultCircuitBreaker(requester);
   }
 
   async execute(input: ProcessPaymentRequest): Promise<ProcessPaymentResponse | undefined> {

@@ -4,6 +4,7 @@ import {PlaceOrderUseCase} from '@core/usecases/place-order.usecase';
 import {BusinessError} from '@shared/exceptions/business.error';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {Logger} from '@shared/logging/logger.adapter';
+import {Loggable} from '@shared/logging/loggable.interface';
 
 export interface PlaceOrderController {
   handle(request: Request, response: Response): Promise<any>;
@@ -11,10 +12,9 @@ export interface PlaceOrderController {
 
 @injectable()
 export class DefaultPlaceOrderController implements PlaceOrderController {
-  constructor(
-    @inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: PlaceOrderUseCase,
-    @inject(InjectableToken.LOGGABLE) private readonly logger: Logger
-  ) {}
+  private readonly logger: Loggable = Logger.getInstance();
+
+  constructor(@inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: PlaceOrderUseCase) {}
 
   async handle(request: Request, response: Response) {
     const {amount} = request.body;

@@ -4,6 +4,7 @@ import {ProcessPaymentGateway} from '@core/gateways/process-payment.gateway';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {Logger} from '@shared/logging/logger.adapter';
 import {ExecutableUseCase} from '@core/executable-usecase.interface';
+import {Loggable} from '@shared/logging/loggable.interface';
 
 export const OrderStatus = {
   PENDING: 'PENDING',
@@ -31,10 +32,9 @@ export interface PlaceOrderUseCase extends ExecutableUseCase<PlaceOrderInput, Pl
 
 @injectable()
 export class DefaultPlaceOrderUseCase implements PlaceOrderUseCase {
-  constructor(
-    @inject(InjectableToken.LOGGABLE) private readonly logger: Logger,
-    @inject(InjectableToken.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway
-  ) {}
+  private readonly logger: Loggable = Logger.getInstance();
+
+  constructor(@inject(InjectableToken.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway) {}
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput | undefined> {
     this.logger.info('Starting order process.');
