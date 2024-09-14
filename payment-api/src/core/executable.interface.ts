@@ -1,3 +1,3 @@
-export interface Executable<Input, Output> {
+export interface ExecutableUseCase<Input, Output> {
   execute(input: Input): Promise<Output>;
 }

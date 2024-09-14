@@ -1,9 +1,9 @@
 import pino from 'pino';
-import {injectable} from 'tsyringe';
 import {Loggable} from '@shared/logging/loggable.interface';
 
-@injectable()
 export class Logger implements Loggable {
+  private static INSTANCE: Logger | null = null;
+
   private logger = pino({
     level: 'info',
     transport: {
@@ -14,11 +14,20 @@ export class Logger implements Loggable {
     },
   });
 
+  private constructor() {}
+
+  public static getInstance(): Logger {
+    if (this.INSTANCE === null) {
+      this.INSTANCE = new Logger();
+    }
+    return this.INSTANCE;
+  }
+
   info(message: string): void {
     this.logger.info(message);
   }
 
-  error(message: string): void {
-    this.logger.error(message);
+  error(message: string, err?: unknown): void {
+    this.logger.error(message, err);
   }
 }

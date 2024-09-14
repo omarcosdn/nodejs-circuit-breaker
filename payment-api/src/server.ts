@@ -1,19 +1,27 @@
 import 'reflect-metadata';
+import '@src/dependency-injection.config';
 import express from 'express';
+import mongoose from 'mongoose';
+import {Logger} from '@shared/logging/logger.adapter';
+import {Environment} from '@src/server-environment.config';
 import {PaymentApiRoutes} from '@infra/rest/payment-api.routes';
-import {container} from 'tsyringe';
-import {Loggable} from '@shared/logging/loggable.interface';
-import {Token} from '@src/dependency-injection.config';
-import {Env} from '@src/server.config';
 
 const PaymentApi = express();
 PaymentApi.use(express.json());
 PaymentApi.use(express.urlencoded({extended: true}));
-PaymentApi.use('/payment-api', PaymentApiRoutes);
+PaymentApi.use(Environment.SERVER_BASE_ROUTE, PaymentApiRoutes);
 
-const logger = container.resolve<Loggable>(Token.LOGGABLE);
+const logger = Logger.getInstance();
 
-const PORT = Env.SERVER_PORT;
-PaymentApi.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+mongoose
+  .connect(`${Environment.MONGO_DATABASE_HOST}/${Environment.MONGO_DATABASE_NAME}`)
+  .then(() => {
+    const PORT = Environment.SERVER_PORT;
+    PaymentApi.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((reason) => {
+    console.error(reason);
+    logger.error('MongoDB connection error');
+  });
