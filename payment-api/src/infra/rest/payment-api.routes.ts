@@ -2,7 +2,7 @@ import express, {Router} from 'express';
 import {container} from 'tsyringe';
 import {HttpRoute} from '@infra/rest/http-route.interface';
 import {HealthCheckController} from '@infra/rest/controllers/health-check.controller';
-import {PaymentProcessController} from '@infra/rest/controllers/payment-process.controller';
+import {ProcessPaymentController} from '@infra/rest/controllers/process-payment.controller';
 
 const routes: HttpRoute[] = [
   {
@@ -12,8 +12,8 @@ const routes: HttpRoute[] = [
   },
   {
     method: 'post',
-    path: '/payment-process',
-    controller: PaymentProcessController,
+    path: '/process-payment',
+    controller: ProcessPaymentController,
   },
 ];
 

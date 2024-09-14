@@ -4,7 +4,7 @@ import {
   ProcessPaymentInput,
   ProcessPaymentOutput,
   ProcessPaymentUseCase,
-} from '@core/usecases/process-payment-use.case';
+} from '@core/usecases/process-payment.usecase';
 import {randomUUID} from 'crypto';
 import {PaymentStatus} from '@core/entities/payment/payment.types';
 import {IPaymentRepository} from '@core/repositories/payment.repository';

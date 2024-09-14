@@ -1,11 +1,11 @@
 import {Request, Response} from 'express';
-import {IProcessPaymentUseCase} from '@core/usecases/process-payment-use.case';
 import {inject, injectable} from 'tsyringe';
+import {IProcessPaymentUseCase} from '@core/usecases/process-payment.usecase';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {IController} from '@infra/rest/controllable.interface';
 
 @injectable()
-export class PaymentProcessController implements IController {
+export class ProcessPaymentController implements IController {
   constructor(@inject(InjectableToken.PROCESS_PAYMENT_USE_CASE) private readonly useCase: IProcessPaymentUseCase) {}
 
   async handle(request: Request, response: Response): Promise<Response> {
