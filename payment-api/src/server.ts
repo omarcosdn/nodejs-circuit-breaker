@@ -4,12 +4,12 @@ import express from 'express';
 import mongoose from 'mongoose';
 import {Logger} from '@shared/logging/logger.adapter';
 import {Environment} from '@src/server-environment.config';
-import {PaymentApiRoutes} from '@infra/rest/payment-api.routes';
+import {configureRoutes} from '@infra/rest/payment-api.routes';
 
 const PaymentApi = express();
 PaymentApi.use(express.json());
 PaymentApi.use(express.urlencoded({extended: true}));
-PaymentApi.use(Environment.SERVER_BASE_ROUTE, PaymentApiRoutes);
+PaymentApi.use(Environment.SERVER_BASE_ROUTE, configureRoutes());
 
 const logger = Logger.getInstance();
 

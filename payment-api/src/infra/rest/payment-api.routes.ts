@@ -1,16 +1,32 @@
-import express from 'express';
+import express, {Router} from 'express';
+import {container} from 'tsyringe';
+import {HttpRoute} from '@infra/rest/http-route.interface';
 import {HealthCheckController} from '@infra/rest/controllers/health-check.controller';
 import {PaymentProcessController} from '@infra/rest/controllers/payment-process.controller';
-import {container} from 'tsyringe';
 
-const PaymentApiRoutes = express.Router();
+const routes: HttpRoute[] = [
+  {
+    method: 'get',
+    path: '/health',
+    controller: HealthCheckController,
+  },
+  {
+    method: 'post',
+    path: '/payment-process',
+    controller: PaymentProcessController,
+  },
+];
 
-// Health Check
-const healthCheckController = container.resolve(HealthCheckController);
-PaymentApiRoutes.get('/health', (req, res) => healthCheckController.handle(req, res));
+export function configureRoutes(): Router {
+  const router = express.Router();
 
-// Payment Management
-const paymentProcessController = container.resolve(PaymentProcessController);
-PaymentApiRoutes.post('/payment-process', (req, res) => paymentProcessController.handle(req, res));
+  routes.forEach((route: HttpRoute) => {
+    const controller = container.resolve(route.controller);
 
-export {PaymentApiRoutes};
+    router[route.method](route.path, (req, res) => {
+      controller.handle(req, res);
+    });
+  });
+
+  return router;
+}
