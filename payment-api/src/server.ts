@@ -1,93 +1,77 @@
 import 'reflect-metadata';
 import '@src/dependency-injection.config';
 import express, {Express} from 'express';
-import mongoose, {Error} from 'mongoose';
+import mongoose from 'mongoose';
 import {Logger} from '@shared/logging/logger.adapter';
 import {Environment} from '@src/server-environment.config';
 import {configureRoutes} from '@infra/rest/payment-api.routes';
 import {Loggable} from '@shared/logging/loggable.interface';
 
-class PaymentApplication {
-  private readonly app: Express;
-  private readonly port: number;
-  private readonly logger: Loggable = Logger.getInstance();
+const logger: Loggable = Logger.getInstance();
 
-  constructor() {
-    this.app = express();
-    this.port = Environment.SERVER_PORT;
-  }
+async function bootstrap(): Promise<void> {
+  const app = createServer();
+  await initializeDatabase();
+  startServer(app);
+}
 
-  public async bootstrap(): Promise<void> {
-    try {
-      this.logger.info('Starting server...');
+function createServer(): Express {
+  logger.info('Starting server...');
 
-      this.configureMiddleware();
-      this.configureRoutes();
+  const app = express();
+  configureMiddleware(app);
+  configureHttpRoutes(app);
 
-      await this.initializeExternalServices();
-      await this.startServer();
+  return app;
+}
 
-      this.logger.info(`Server running on port ${this.port}`);
-    } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`An error occurred during application bootstrap: ${error.message}`);
-      } else {
-        this.logger.error('An unknown error occurred during application bootstrap');
-      }
-      process.exit(1);
-    }
-  }
+function configureMiddleware(app: Express): void {
+  app.use(express.json());
+  app.use(express.urlencoded({extended: true}));
+}
 
-  private configureMiddleware(): void {
-    this.app.use(express.json());
-    this.app.use(express.urlencoded({extended: true}));
-  }
+function configureHttpRoutes(app: Express): void {
+  app.use(Environment.SERVER_BASE_ROUTE, configureRoutes());
+}
 
-  private configureRoutes(): void {
-    this.app.use(Environment.SERVER_BASE_ROUTE, configureRoutes());
-  }
-
-  private async initializeExternalServices(): Promise<void> {
-    try {
-      const database = `${Environment.MONGO_DATABASE_HOST}/${Environment.MONGO_DATABASE_NAME}`;
-      await mongoose.connect(database);
-      this.logger.info('MongoDB connected successfully');
-    } catch (error) {
-      throw new Error('Failed to connect to MongoDB');
-    }
-  }
-
-  private async startServer(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.app.listen(this.port, (error?: Error) => {
-        if (error !== undefined) {
-          this.logger.error(`Failed to start server: ${error.message}`);
-          reject(error);
-        }
-
-        resolve();
-      });
-    });
+async function initializeDatabase(): Promise<void> {
+  try {
+    const database = `${Environment.MONGO_DATABASE_HOST}/${Environment.MONGO_DATABASE_NAME}`;
+    await mongoose.connect(database);
+    logger.info('MongoDB connected successfully');
+  } catch (error) {
+    logger.error('MongoDB connection error');
+    throw new Error('Failed to connect to MongoDB');
   }
 }
 
+function startServer(app: Express): void {
+  const port = Environment.SERVER_PORT;
+
+  app
+    .listen(port, () => {
+      logger.info(`Server running on port ${port}`);
+    })
+    .on('error', (error) => {
+      logger.error(`Failed to start server: ${error.message}`);
+      process.exit(1);
+    });
+}
+
 (async () => {
-  const app = new PaymentApplication();
-  await app.bootstrap();
+  await bootstrap();
 })();
 
-export const shutdown = async (stream: any): Promise<void> => {
-  console.log(`Received ${stream}. Gracefully shutting down...`);
+async function shutdown(signal: string): Promise<void> {
+  console.log(`Received ${signal}. Gracefully shutting down...`);
+  try {
+    await mongoose.connection.close();
+    process.exit(0);
+  } catch (error) {
+    console.log(`Error during shutdown: ${(error as Error).message}`);
+    process.exit(1);
+  }
+}
 
-  await mongoose.connection.close();
-
-  process.exit(0);
-};
-
-process.on('SIGINT', async (stream) => {
-  await shutdown(stream);
-});
-
-process.on('SIGTERM', async (stream) => {
-  await shutdown(stream);
-});
+process.on('SIGINT', async (signal) => await shutdown(signal));
+process.on('SIGTERM', async (signal) => await shutdown(signal));
