@@ -1,18 +1,11 @@
 import pino from 'pino';
 import {Loggable} from '@shared/logging/loggable.interface';
+import {Context} from '@shared/context/async-local-storage.context';
 
 export class Logger implements Loggable {
   private static INSTANCE: Logger | null = null;
 
-  private logger = pino({
-    level: 'info',
-    transport: {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-      },
-    },
-  });
+  private readonly logger: pino.Logger = pino();
 
   private constructor() {}
 
@@ -24,10 +17,15 @@ export class Logger implements Loggable {
   }
 
   info(message: string): void {
-    this.logger.info(message);
+    this.logWithTrace().info(message);
   }
 
   error(message: string, err?: unknown): void {
-    this.logger.error(message, err);
+    this.logWithTrace().error(message, err);
+  }
+
+  private logWithTrace() {
+    const traceId = Context.getTraceId();
+    return this.logger.child({ 'trace-id': traceId });
   }
 }

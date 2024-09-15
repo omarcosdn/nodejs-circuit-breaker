@@ -8,6 +8,7 @@ import {BusinessError} from '@shared/exceptions/business.error';
 import {injectable} from 'tsyringe';
 import {getPaymentApiInstance} from '@infra/axios-instance.config';
 import {defaultCircuitBreaker} from '@infra/circuit-breaker.config';
+import {Context} from '@shared/context/async-local-storage.context';
 
 interface PaymentApiRequest {
   amount: number;
@@ -27,7 +28,12 @@ export class DefaultProcessPaymentGateway implements ProcessPaymentGateway {
 
   constructor() {
     const requester = (data: PaymentApiRequest) => {
-      return getPaymentApiInstance().post<PaymentApiResponse>('/payment-process', data);
+      return getPaymentApiInstance().post<PaymentApiResponse>('/process-payment', data, {
+        headers: {
+          'content-type': 'application/json',
+          'x-trace-id': Context.getTraceId(),
+        },
+      });
     };
 
     this.breaker = defaultCircuitBreaker(requester);

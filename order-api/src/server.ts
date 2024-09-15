@@ -6,10 +6,12 @@ import {OrderApiRoutes} from '@infra/rest/order-api.routes';
 import {Environment} from '@src/server-environment.config';
 import {BusinessError} from '@shared/exceptions/business.error';
 import {Logger} from '@shared/logging/logger.adapter';
+import {initContext} from '@shared/context/async-local-storage.context';
 
 const OrderApi = express();
 OrderApi.use(express.json());
 OrderApi.use(express.urlencoded({extended: true}));
+OrderApi.use(initContext);
 OrderApi.use('/order-api', OrderApiRoutes);
 
 const logger = Logger.getInstance();
