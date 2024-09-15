@@ -6,6 +6,7 @@ import {Logger} from '@shared/logging/logger.adapter';
 import {Environment} from '@src/server-environment.config';
 import {configureRoutes} from '@infra/rest/payment-api.routes';
 import {Loggable} from '@shared/logging/loggable.interface';
+import {initContext} from '@shared/context/async-local-storage.context';
 
 const logger: Loggable = Logger.getInstance();
 
@@ -31,6 +32,8 @@ function configureMiddleware(app: Express): void {
 }
 
 function configureHttpRoutes(app: Express): void {
+  app.use(initContext);
+
   app.use(Environment.SERVER_BASE_ROUTE, configureRoutes());
 }
 
