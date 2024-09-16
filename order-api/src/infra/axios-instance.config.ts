@@ -14,10 +14,9 @@ export const getPaymentApiInstance = (): AxiosInstance => {
 
   axiosRetry(instance, {
     retries: Environment.PAYMENT_API_RETRIES,
-    retryDelay: (retryCount) => {
-      const delay = calculateExponentialBackoff(retryCount);
-      Logger.getInstance().info(`Retry attempt #${retryCount}, waiting for ${delay} ms`);
-      return delay;
+    retryDelay: calculateExponentialBackoff,
+    onRetry: (retryCount) => {
+      Logger.getInstance().info(`Retry attempt #${retryCount}`);
     },
     retryCondition: (error: AxiosError) => {
       return isNetworkOrIdempotentRequestError(error);
