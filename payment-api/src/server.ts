@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import '@src/dependency-injection.config';
-import express, {Express} from 'express';
+import express, {Express, NextFunction, Request, Response} from 'express';
 import mongoose from 'mongoose';
 import {Logger} from '@shared/logging/logger.adapter';
 import {Environment} from '@src/server-environment.config';
@@ -27,7 +27,22 @@ function createServer(): Express {
 }
 
 function configureMiddleware(app: Express): void {
-  app.use(express.json());
+  app.use(
+    express.json({
+      strict: true,
+      verify(req: Request, res: Response, buf: Buffer, encoding: string) {
+        try {
+          JSON.parse(buf.toString());
+        } catch (error) {
+          res.status(400).json({
+            status: 400,
+            message: 'Invalid JSON format',
+          });
+          throw Error('Invalid JSON format');
+        }
+      },
+    })
+  );
   app.use(express.urlencoded({extended: true}));
 }
 
@@ -35,6 +50,22 @@ function configureHttpRoutes(app: Express): void {
   app.use(initContext);
 
   app.use(Environment.SERVER_BASE_ROUTE, configureRoutes());
+
+  // route not found middleware
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.status(404).json({
+      status: 404,
+      message: `Cannot ${req.method} ${req.originalUrl}`,
+    });
+  });
+
+  // global error handler middleware
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    res.status(500).json({
+      status: 500,
+      message: 'Internal Server Error',
+    });
+  });
 }
 
 async function initializeDatabase(): Promise<void> {
