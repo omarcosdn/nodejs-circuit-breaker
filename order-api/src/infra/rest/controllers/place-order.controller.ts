@@ -1,6 +1,6 @@
 import {inject, injectable} from 'tsyringe';
 import {Request, Response} from 'express';
-import {PlaceOrderUseCase} from '@core/usecases/place-order.usecase';
+import {IPlaceOrderUseCase} from '@core/usecases/place-order.usecase';
 import {BusinessError} from '@shared/exceptions/business.error';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {Logger} from '@shared/logging/logger.adapter';
@@ -14,7 +14,7 @@ export interface PlaceOrderController {
 export class DefaultPlaceOrderController implements PlaceOrderController {
   private readonly logger: Loggable = Logger.getInstance();
 
-  constructor(@inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: PlaceOrderUseCase) {}
+  constructor(@inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: IPlaceOrderUseCase) {}
 
   async handle(request: Request, response: Response) {
     const {amount} = request.body;

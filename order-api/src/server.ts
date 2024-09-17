@@ -7,6 +7,7 @@ import {Environment} from '@src/server-environment.config';
 import {BusinessError} from '@shared/exceptions/business.error';
 import {Logger} from '@shared/logging/logger.adapter';
 import {initContext} from '@shared/context/async-local-storage.context';
+import mongoose from 'mongoose';
 
 const OrderApi = express();
 OrderApi.use(express.json());
@@ -31,7 +32,21 @@ OrderApi.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-const PORT = Environment.SERVER_PORT;
-OrderApi.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+(async () => {
+  const PORT = Environment.SERVER_PORT;
+  OrderApi.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+  await initializeDatabase();
+})();
+
+async function initializeDatabase(): Promise<void> {
+  try {
+    const database = `${Environment.MONGO_DATABASE_HOST}/${Environment.MONGO_DATABASE_NAME}`;
+    await mongoose.connect(database);
+    logger.info('MongoDB connected successfully');
+  } catch (error) {
+    logger.error('MongoDB connection error');
+    throw new Error('Failed to connect to MongoDB');
+  }
+}

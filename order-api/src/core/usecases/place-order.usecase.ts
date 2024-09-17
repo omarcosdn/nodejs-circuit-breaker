@@ -1,15 +1,12 @@
 import {inject, injectable} from 'tsyringe';
-import {randomUUID} from 'crypto';
 import {ProcessPaymentGateway} from '@core/gateways/process-payment.gateway';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {Logger} from '@shared/logging/logger.adapter';
 import {ExecutableUseCase} from '@core/executable-usecase.interface';
 import {Loggable} from '@shared/logging/loggable.interface';
-
-export const OrderStatus = {
-  PENDING: 'PENDING',
-  SUCCESS: 'SUCCESS',
-} as const;
+import {IOrderRepository} from '@core/repositories/order.repository';
+import {Order} from '@core/entities/order/order.entity';
+import {PaymentID} from '@core/entities/payment/payment.types';
 
 export interface PlaceOrderInput {
   amount: number;
@@ -17,44 +14,36 @@ export interface PlaceOrderInput {
 
 export interface PlaceOrderOutput {
   id: string;
-  status: string;
-  amount: number;
-  payment: Payment;
 }
 
-export interface Payment {
-  id: string;
-  status: string;
-  amount: number;
-}
-
-export interface PlaceOrderUseCase extends ExecutableUseCase<PlaceOrderInput, PlaceOrderOutput | undefined> {}
+export interface IPlaceOrderUseCase extends ExecutableUseCase<PlaceOrderInput, PlaceOrderOutput | undefined> {}
 
 @injectable()
-export class DefaultPlaceOrderUseCase implements PlaceOrderUseCase {
+export class PlaceOrderUseCase implements IPlaceOrderUseCase {
   private readonly logger: Loggable = Logger.getInstance();
 
-  constructor(@inject(InjectableToken.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway) {}
+  constructor(
+    @inject(InjectableToken.ORDER_REPOSITORY) private readonly repository: IOrderRepository,
+    @inject(InjectableToken.PAYMENT_API_GATEWAY) private readonly paymentGateway: ProcessPaymentGateway
+  ) {}
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput | undefined> {
     this.logger.info('Starting order process.');
 
-    const paymentOutput = await this.paymentGateway.execute({amount: input.amount});
-    if (paymentOutput !== undefined) {
-      const result: PlaceOrderOutput = {
-        id: randomUUID(),
-        status: OrderStatus.PENDING,
-        amount: input.amount,
-        payment: {
-          id: paymentOutput.id,
-          status: paymentOutput.status,
-          amount: input.amount,
-        },
-      };
+    const order = Order.newOrder(input.amount);
+
+    const paymentResponse = await this.paymentGateway.execute({amount: input.amount});
+    if (paymentResponse !== undefined) {
+      order.addPayment(new PaymentID(paymentResponse.id));
+      order.markAsProcessed();
+
+      await this.repository.save(order);
 
       this.logger.info('Order processed successfully.');
 
-      return result;
+      return {
+        id: order.getIdentityAsString(),
+      };
     }
 
     this.logger.info('Finishing order process with error.');
