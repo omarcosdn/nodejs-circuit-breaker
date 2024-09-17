@@ -5,28 +5,24 @@ import {BusinessError} from '@shared/exceptions/business.error';
 import {InjectableToken} from '@src/dependency-injection.types';
 import {Logger} from '@shared/logging/logger.adapter';
 import {Loggable} from '@shared/logging/loggable.interface';
-
-export interface PlaceOrderController {
-  handle(request: Request, response: Response): Promise<any>;
-}
+import {IController} from '@infra/rest/controllable.interface';
 
 @injectable()
-export class DefaultPlaceOrderController implements PlaceOrderController {
+export class PlaceOrderController implements IController {
   private readonly logger: Loggable = Logger.getInstance();
 
   constructor(@inject(InjectableToken.PLACE_ORDER_USE_CASE) private readonly useCase: IPlaceOrderUseCase) {}
 
-  async handle(request: Request, response: Response) {
+  async handle(request: Request, response: Response): Promise<Response> {
     const {amount} = request.body;
 
     try {
       const result = await this.useCase.execute({amount});
-      if (result) {
-        return response.json({
-          status: 200,
-          content: result,
-        });
-      }
+
+      return response.json({
+        status: 200,
+        content: result,
+      });
     } catch (err: unknown) {
       this.logger.error('An error occurred during order placement process.', err);
 

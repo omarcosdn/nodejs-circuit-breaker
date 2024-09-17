@@ -43,7 +43,7 @@ function configureMiddleware(app: Express): void {
       },
     })
   );
-  app.use(express.urlencoded({extended: true}));
+  app.use(express.urlencoded({extended: false}));
 }
 
 function configureHttpRoutes(app: Express): void {
@@ -84,7 +84,7 @@ function startServer(app: Express): void {
 
   app
     .listen(port, () => {
-      logger.info(`Server running on port ${port}`);
+      logger.info(`Server running on port #${port}`);
     })
     .on('error', (error) => {
       logger.error(`Failed to start server: ${error.message}`);

@@ -1,16 +1,32 @@
 import {container} from 'tsyringe';
-import express from 'express';
+import express, {Router} from 'express';
 import {HealthCheckController} from '@infra/rest/controllers/health-check.controller';
-import {DefaultPlaceOrderController} from '@infra/rest/controllers/place-order.controller';
+import {PlaceOrderController} from '@infra/rest/controllers/place-order.controller';
+import {HttpRoute} from '@infra/rest/http-route.interface';
 
-const OrderApiRoutes = express.Router();
+const routes: HttpRoute[] = [
+  {
+    method: 'get',
+    path: '/health',
+    controller: HealthCheckController,
+  },
+  {
+    method: 'post',
+    path: '/place-order',
+    controller: PlaceOrderController,
+  },
+];
 
-// Health Check
-const healthCheckController = container.resolve(HealthCheckController);
-OrderApiRoutes.get('/health', (req, res) => healthCheckController.handle(req, res));
+export function configureRoutes(): Router {
+  const router = express.Router();
 
-// Payment Management
-const placeOrderController = container.resolve(DefaultPlaceOrderController);
-OrderApiRoutes.post('/place-order', (req, res) => placeOrderController.handle(req, res));
+  routes.forEach((route: HttpRoute) => {
+    const controller = container.resolve(route.controller);
 
-export {OrderApiRoutes};
+    router[route.method](route.path, (req, res) => {
+      controller.handle(req, res);
+    });
+  });
+
+  return router;
+}
